@@ -1,0 +1,7 @@
+# .NET build artifacts
+BookstoreAPI/bin/
+BookstoreAPI/obj/
+
+# React build artifacts
+bookstore-frontend/node_modules/
+bookstore-frontend/build/
