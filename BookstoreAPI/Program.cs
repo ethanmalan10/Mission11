@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
-        policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod());
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
 
 builder.Services.AddDbContext<BookstoreContext>(options =>
@@ -41,6 +41,41 @@ app.MapGet("/api/books", async (BookstoreContext db,
 
 app.MapGet("/api/books/categories", async (BookstoreContext db) =>
     await db.Books.Select(b => b.Category).Distinct().OrderBy(c => c).ToListAsync());
+
+app.MapPost("/api/books", async (BookstoreContext db, Book book) =>
+{
+    db.Books.Add(book);
+    await db.SaveChangesAsync();
+    return Results.Created($"/api/books/{book.BookID}", book);
+});
+
+app.MapPut("/api/books/{id}", async (BookstoreContext db, int id, Book updated) =>
+{
+    var book = await db.Books.FindAsync(id);
+    if (book is null) return Results.NotFound();
+
+    book.Title = updated.Title;
+    book.Author = updated.Author;
+    book.Publisher = updated.Publisher;
+    book.ISBN = updated.ISBN;
+    book.Classification = updated.Classification;
+    book.Category = updated.Category;
+    book.PageCount = updated.PageCount;
+    book.Price = updated.Price;
+
+    await db.SaveChangesAsync();
+    return Results.Ok(book);
+});
+
+app.MapDelete("/api/books/{id}", async (BookstoreContext db, int id) =>
+{
+    var book = await db.Books.FindAsync(id);
+    if (book is null) return Results.NotFound();
+
+    db.Books.Remove(book);
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
 
 app.Run();
 
