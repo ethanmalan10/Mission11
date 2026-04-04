@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl } from '../api';
 
 interface Book {
   bookID: number;
@@ -26,7 +27,7 @@ function AdminBooks() {
   const [form, setForm] = useState<Omit<Book, 'bookID'>>(emptyForm);
 
   const loadBooks = () =>
-    fetch('/api/books?pageSize=200')
+    fetch(apiUrl('/api/books?pageSize=200'))
       .then(res => res.json())
       .then(data => setBooks(data.books));
 
@@ -41,7 +42,7 @@ function AdminBooks() {
   };
 
   const handleAdd = () => {
-    fetch('/api/books', {
+    fetch(apiUrl('/api/books'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
@@ -56,7 +57,7 @@ function AdminBooks() {
   };
 
   const handleUpdate = () => {
-    fetch(`/api/books/${editingID}`, {
+    fetch(apiUrl(`/api/books/${editingID}`), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
@@ -65,7 +66,7 @@ function AdminBooks() {
 
   const handleDelete = (id: number) => {
     if (!window.confirm('Delete this book?')) return;
-    fetch(`/api/books/${id}`, { method: 'DELETE' }).then(loadBooks);
+    fetch(apiUrl(`/api/books/${id}`), { method: 'DELETE' }).then(loadBooks);
   };
 
   const cancelForm = () => { setShowAdd(false); setEditingID(null); setForm(emptyForm); };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { apiUrl } from '../api';
 
 interface Book {
   bookID: number;
@@ -36,14 +37,14 @@ function BookList() {
   const totalPages = Math.ceil(totalCount / pageSize);
 
   useEffect(() => {
-    fetch('/api/books/categories')
+    fetch(apiUrl('/api/books/categories'))
       .then(res => res.json())
       .then(setCategories);
   }, []);
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/books?page=${page}&pageSize=${pageSize}&sortOrder=${sortOrder}&category=${category}`)
+    fetch(apiUrl(`/api/books?page=${page}&pageSize=${pageSize}&sortOrder=${sortOrder}&category=${category}`))
       .then(res => res.json())
       .then((data: BooksResponse) => {
         setBooks(data.books);
