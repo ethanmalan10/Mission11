@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
-function Cart({ onContinueShopping }: { onContinueShopping: () => void }) {
+function Cart() {
+  const navigate = useNavigate();
   const { items, updateQuantity, removeFromCart, total } = useCart();
 
   return (
@@ -56,7 +58,7 @@ function Cart({ onContinueShopping }: { onContinueShopping: () => void }) {
         </div>
       )}
 
-      <button className="btn btn-primary" onClick={onContinueShopping}>
+      <button className="btn btn-primary" onClick={() => navigate(-1)}>
         &larr; Continue Shopping
       </button>
     </div>

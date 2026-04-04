@@ -1,19 +1,20 @@
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import BookList from './components/BookList';
 import Cart from './components/Cart';
+import AdminBooks from './components/AdminBooks';
 
 function App() {
-  const [view, setView] = useState<'list' | 'cart'>('list');
-  const [savedPage, setSavedPage] = useState(1);
-
   return (
-    <CartProvider>
-      {view === 'list'
-        ? <BookList initialPage={savedPage} onGoToCart={page => { setSavedPage(page); setView('cart'); }} />
-        : <Cart onContinueShopping={() => setView('list')} />
-      }
-    </CartProvider>
+    <BrowserRouter>
+      <CartProvider>
+        <Routes>
+          <Route path="/" element={<BookList />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/adminbooks" element={<AdminBooks />} />
+        </Routes>
+      </CartProvider>
+    </BrowserRouter>
   );
 }
 

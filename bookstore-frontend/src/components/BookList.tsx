@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { apiUrl } from '../api';
 
 interface Book {
   bookID: number;
@@ -18,17 +20,14 @@ interface BooksResponse {
   books: Book[];
 }
 
-interface Props {
-  initialPage: number;
-  onGoToCart: (currentPage: number) => void;
-}
-
-function BookList({ initialPage, onGoToCart }: Props) {
+function BookList() {
+  const navigate = useNavigate();
   const { addToCart, itemCount, total } = useCart();
 
+  const savedPage = parseInt(sessionStorage.getItem('bookListPage') || '1');
   const [books, setBooks] = useState<Book[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [page, setPage] = useState(initialPage);
+  const [page, setPage] = useState(savedPage);
   const [pageSize, setPageSize] = useState(5);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [loading, setLoading] = useState(true);
@@ -38,14 +37,14 @@ function BookList({ initialPage, onGoToCart }: Props) {
   const totalPages = Math.ceil(totalCount / pageSize);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/books/categories')
+    fetch(apiUrl('/api/books/categories'))
       .then(res => res.json())
       .then(setCategories);
   }, []);
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:5000/api/books?page=${page}&pageSize=${pageSize}&sortOrder=${sortOrder}&category=${category}`)
+    fetch(apiUrl(`/api/books?page=${page}&pageSize=${pageSize}&sortOrder=${sortOrder}&category=${category}`))
       .then(res => res.json())
       .then((data: BooksResponse) => {
         setBooks(data.books);
@@ -54,6 +53,11 @@ function BookList({ initialPage, onGoToCart }: Props) {
       });
   }, [page, pageSize, sortOrder, category]);
 
+  const goToCart = () => {
+    sessionStorage.setItem('bookListPage', String(page));
+    navigate('/cart');
+  };
+
   const selectCategory = (cat: string) => {
     setCategory(cat);
     setPage(1);
@@ -61,17 +65,16 @@ function BookList({ initialPage, onGoToCart }: Props) {
 
   return (
     <div className="container-fluid mt-4">
-      {/* Header */}
       <div className="row align-items-center mb-4">
         <div className="col">
           <h1 className="mb-0">Bookstore</h1>
         </div>
-        <div className="col-auto">
+        <div className="col-auto d-flex gap-2">
+          <button className="btn btn-outline-secondary" onClick={() => navigate('/adminbooks')}>
+            Admin
+          </button>
           {/* Bootstrap Badge: pill badge on cart button showing item count */}
-          <button
-            className="btn btn-outline-dark position-relative"
-            onClick={() => onGoToCart(page)}
-          >
+          <button className="btn btn-outline-dark position-relative" onClick={goToCart}>
             Cart
             {itemCount > 0 && (
               <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -130,7 +133,7 @@ function BookList({ initialPage, onGoToCart }: Props) {
                 <>
                   <p className="mb-1">{itemCount} item{itemCount !== 1 ? 's' : ''}</p>
                   <p className="mb-2 fw-bold">Total: ${total.toFixed(2)}</p>
-                  <button className="btn btn-sm btn-primary w-100" onClick={() => onGoToCart(page)}>
+                  <button className="btn btn-sm btn-primary w-100" onClick={goToCart}>
                     View Cart
                   </button>
                 </>
